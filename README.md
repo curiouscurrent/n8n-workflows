@@ -11,4 +11,12 @@ Used an app trigger(https://cal.com, my calendar booking sofware) to watch for n
 
 
 
-## 2)
+## 2) email draft automated workflow 
+Cold outreach via email 
+(fully automated draft ready using n8n)
+
+<img width="1270" height="535" alt="image" src="https://github.com/user-attachments/assets/651cd3c6-0ab7-43ab-8c18-240153d15e94" />
+<img width="1364" height="398" alt="image" src="https://github.com/user-attachments/assets/a4e13603-a6ad-4aac-b327-79aed770bd91" />
+<img width="554" height="495" alt="image" src="https://github.com/user-attachments/assets/6041caa3-c2c1-4a6f-9078-f77519864798" />
+
+
