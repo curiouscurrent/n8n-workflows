@@ -1,0 +1,116 @@
+{
+  "name": "calworkflow",
+  "nodes": [
+    {
+      "parameters": {
+        "events": [
+          "BOOKING_CREATED"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.calTrigger",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "0d4ba8c5-33ec-42ec-b818-76cc6686e4a4",
+      "name": "Cal.com Trigger",
+      "webhookId": "0ac47f47-0713-42f9-8ebc-927f7fe4a7d1",
+      "credentials": {
+        "calApi": {
+          "id": "IVP4TGQe0shNf0xb",
+          "name": "Cal account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.attendees[0].email }}",
+        "subject": "=re : meeting w  {{ $json.attendees[0].name }}",
+        "message": "=Hey {{ $json.attendees[0].name }},\n<br><br>\nJust saw you booked a {{ $json.type }} call. Looking forward to learning more about you/the business. See you on {{ $json.startTime.toDateTime().format('EEEE') }}\n<br><br>\nThanks\n<br>\nAnusha K",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "595c6d1a-3e52-4a2f-b689-ae1911443973",
+      "name": "Send a message1",
+      "webhookId": "c06fdb37-2d00-462c-9ee2-99407154ff63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i7phHabw7IKFFmgm",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "team": "90161323507",
+        "space": "90165485763",
+        "folder": "90167233152",
+        "list": "901611861384",
+        "name": "={{ $('Cal.com Trigger').item.json.attendees[0].name }}",
+        "additionalFields": {
+          "customFieldsJson": "= [ {\"id\": \"0bec61a2-cbb3-43f7-ac3d-f068b1e8d2bf\", \"value\": \" {{ $('Cal.com Trigger').item.json.metadata.videoCallUrl }}\"} ]\n",
+          "status": "in progress"
+        }
+      },
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -16
+      ],
+      "id": "1696eeb1-8a3c-45aa-8205-939ff9560840",
+      "name": "Create a task",
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "dovFyu6Ic2eF2HXT",
+          "name": "ClickUp account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cal.com Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "30f56083-4901-4f81-bf30-6253d9d39dbf",
+  "meta": {
+    "instanceId": "5c38288d7d094b7fe2bfb8e77b52664319bd387cd46b49bd3015733f896afb09"
+  },
+  "id": "zgv9e82QTfL7kUjM",
+  "tags": []
+}

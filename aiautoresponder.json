@@ -1,0 +1,198 @@
+{
+  "name": "aiautoresponder",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Onboarding Form",
+        "formDescription": "Glad to work with you, fill in a few details to get started.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "placeholder": "Anusha",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "placeholder": "K",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "anushak26121@gmail.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone number",
+              "placeholder": "+91 123-456-7890",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Design Preference",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Minimalistic"
+                  },
+                  {
+                    "option": "Sleek"
+                  },
+                  {
+                    "option": "Luxurious"
+                  },
+                  {
+                    "option": "Playful"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Description",
+              "placeholder": "Relatify offers lifestyle necessary items",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Timeline",
+              "placeholder": "3-6 weeks",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "470006d1-a709-46e9-9a7a-a37482e2563b",
+      "name": "On form submission",
+      "webhookId": "ef13e6ee-e278-4979-95dd-d0f441a2357f"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a helpful, intelligent email writing assistant"
+            },
+            {
+              "content": "=Your task is to customise an email template using the following data.\n\nFirst Name : {{ $json['First Name'] }}\nLast Name : {{ $json['Last Name'] }}\nEmail : {{ $json.Email }}\nPhone number :{{ $json['Phone number'] }}\nDesign Preference : {{ $json['Design Preference'] }}\nCompany Description : {{ $json['Company Description'] }}\nTimeline : {{ $json.Timeline }}\n\n--\nEmail Template : \n\nHey {First Name}\n\nHow are you? Thanks for submitting your onboarding form a moment ago.\n\nI loved reading about {something unique about their Company Description}and I see here you are looking for a {Design Preference} sort of site and you're looking to do it in about {Timeline}. \n\nWould you mind confirming your number for me one last time?{formatted Phone Number}, right?\n\nCould you let me know if I'm missing anything?\n\nThanks\nAnusha K \n-------\nDon't include the subject line"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "981b5441-e4dc-44fe-9cb8-a4947d96dcfd",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mqvRILOIZVMBOvFG",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "anushak26121@gmail.com",
+        "subject": "re : onboarding mail",
+        "message": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "5aad5089-d096-414e-965e-0c3437ed2a33",
+      "name": "Send a message",
+      "webhookId": "c06fdb37-2d00-462c-9ee2-99407154ff63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i7phHabw7IKFFmgm",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "7a854a88-8dea-4cf5-ac2a-2fa388be84e5",
+      "name": "Wait",
+      "webhookId": "6bcdc539-ccec-4996-b60b-44156e3bef5a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "355a7ae0-b981-43d7-82f2-a3a1e892c7aa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5c38288d7d094b7fe2bfb8e77b52664319bd387cd46b49bd3015733f896afb09"
+  },
+  "id": "A2Dfe2dZAgvWInGv",
+  "tags": []
+}

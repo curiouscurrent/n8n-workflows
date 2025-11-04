@@ -1,0 +1,382 @@
+{
+  "name": "email draft automated",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -64
+      ],
+      "id": "2985e327-a785-4163-9b22-c6ce8d7706ee",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1XkWfCPAvgKUbe48pyVt-EJi07E0nvmu6gWPoKrbnqQk",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XkWfCPAvgKUbe48pyVt-EJi07E0nvmu6gWPoKrbnqQk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XkWfCPAvgKUbe48pyVt-EJi07E0nvmu6gWPoKrbnqQk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -208,
+        -64
+      ],
+      "id": "b0b2e025-b1fc-4219-b838-a1ad579f7d1b",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Pq4rFjcW1STUYhcN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a helpful, intelligent writing assistant."
+            },
+            {
+              "content": "Your task is to personalize an email.\n\nYou'll do this by taking, as input, a prospect Linkedin profile, and then editing 5 templates for different sections of the email : subject Line, icebreaker, elevator pitch, call to action, and a PS field.\n\nYour templates are below.\n\nSubject Line : \"hey {name}, think I have something for you re: {uniquethingAboutThemorTheirCompany}\"\n\nIcebreaker : \"I know you're doing {thing} and I've been following {relatedThing} for a while so I figured it made sense to chat.\"\n\nElevator Pitch : \"THE TLDR: I think I can add ~$5k/month to {theirParaphrasedBusiness} with a few automated systems\"\n\nCall to Action : \"I just did this for a very similar {industry} company and we hit $28,350 in a few months- they do {relatedThing}-so am very confident I can duplicate this at minimum. Would be 100% risk-free,I'd guarantee atleast 20 appts booked or you wouldn't pay.\"\n\nPS: \"even if we just chat I'd love to hear about what you're doing with {thing}\"\n\nGuidelines:\n1. Your tone of voice should be \"casual bar conversation\" and very spartan. No fancy language.\n2. Look for plausible(but vague) connections wherever possible.\n3. Do not just repeat data from the LinkedIn profile verbatim. Paraphrase, so they think a human wrote it.\n4. Make sure the subject line is non-capitalized, even if it's grammatically incorrect. This makes the email seem human.\n5. Respond in JSON using this format.\n\n{\"subjectLine\":\"\",\"icebreaker\":\"\",\"elevatorPitch\":\"\",\"callToAction\":\"\",\"ps\":\"\"}\n"
+            },
+            {
+              "content": "=fullName : {{ $json['Full Name'] }}\ncompanyLinkedin : {{ $json['Company Linkedin'] }}\ncompanyName : {{ $json['Company Legal Name'] }}\ncompanyWebsite : {{ $json['Company Website'] }}\nsummary : {{ $json.Summary }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -64
+      ],
+      "id": "795dcbb8-146f-4f0a-b833-db05f058ec87",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mqvRILOIZVMBOvFG",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "=1XkWfCPAvgKUbe48pyVt-EJi07E0nvmu6gWPoKrbnqQk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Get row(s) in sheet').item.json.Email }}",
+            "Civility": "={{ $('Get row(s) in sheet').item.json.Civility }}",
+            "First Name": "={{ $('Get row(s) in sheet').item.json['First Name'] }}",
+            "Last Name": "={{ $('Get row(s) in sheet').item.json['Last Name'] }}",
+            "Full Name": "={{ $('Get row(s) in sheet').item.json['Full Name'] }}",
+            "Company Linkedin": "={{ $('Get row(s) in sheet').item.json['Company Linkedin'] }}",
+            "Company Legal Name": "={{ $('Get row(s) in sheet').item.json['Company Legal Name'] }}",
+            "Company Phone": "={{ $('Get row(s) in sheet').item.json['Company Phone'] }}",
+            "Company Website": "={{ $('Get row(s) in sheet').item.json['Company Website'] }}",
+            "Summary": "={{ $('Get row(s) in sheet').item.json.Summary }}",
+            "subjectLine": "={{ $json.output[0].content[0].text.subjectLine }}",
+            "icebreaker": "={{ $json.output[0].content[0].text.icebreaker }}",
+            "elevatorPitch": "={{ $json.output[0].content[0].text.elevatorPitch }}",
+            "callToAction": "={{ $json.output[0].content[0].text.callToAction }}",
+            "ps": "={{ $json.output[0].content[0].text.ps }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Civility",
+              "displayName": "Civility",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Linkedin",
+              "displayName": "Company Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Legal Name",
+              "displayName": "Company Legal Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Phone",
+              "displayName": "Company Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Website",
+              "displayName": "Company Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subjectLine",
+              "displayName": "subjectLine",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "icebreaker",
+              "displayName": "icebreaker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "elevatorPitch",
+              "displayName": "elevatorPitch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "callToAction",
+              "displayName": "callToAction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ps",
+              "displayName": "ps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        -64
+      ],
+      "id": "669e933d-26cb-4c26-823b-e0ec3053e41e",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Pq4rFjcW1STUYhcN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subjectLine }}",
+        "message": "=hey {{ $json['First Name'] }}\n\n{{ $json.icebreaker }}.\n\n{{ $json.elevatorPitch }}.\n\n{{ $json.callToAction }}.\n\nps : {{ $json.ps }}.",
+        "options": {
+          "sendTo": "={{ $json.Email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        -64
+      ],
+      "id": "46d37a3b-b220-4c70-a48d-69cc677aba37",
+      "name": "Create a draft",
+      "webhookId": "a78499da-a156-4492-99ca-75693e237498",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i7phHabw7IKFFmgm",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3da5fe5-bf20-4828-9fc2-d62a40f6a9d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5c38288d7d094b7fe2bfb8e77b52664319bd387cd46b49bd3015733f896afb09"
+  },
+  "id": "TraefWBNkiFtCHeq",
+  "tags": []
+}
