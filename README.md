@@ -19,4 +19,9 @@ Cold outreach via email
 <img width="1364" height="398" alt="image" src="https://github.com/user-attachments/assets/a4e13603-a6ad-4aac-b327-79aed770bd91" />
 <img width="554" height="495" alt="image" src="https://github.com/user-attachments/assets/6041caa3-c2c1-4a6f-9078-f77519864798" />
 
+## 3) ai autoresponder workflow 
+On-form submission trigger -> Open AI node (with action as "Message a model") -> Wait node -> Gmail node (with action as "Send a message")
+<img width="1364" height="668" alt="image" src="https://github.com/user-attachments/assets/00d24d00-ca4e-44a5-870c-93b7df269dbe" />
+
+
 
